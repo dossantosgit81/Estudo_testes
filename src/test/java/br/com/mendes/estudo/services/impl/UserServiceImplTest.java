@@ -3,6 +3,7 @@ package br.com.mendes.estudo.services.impl;
 import br.com.mendes.estudo.domain.User;
 import br.com.mendes.estudo.domain.dto.UserDTO;
 import br.com.mendes.estudo.repositories.UserRepository;
+import br.com.mendes.estudo.services.exceptions.DataIntegrityViolationException;
 import br.com.mendes.estudo.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -102,6 +103,20 @@ class UserServiceImplTest {
         assertEquals(NAME, response.getName());
         assertEquals(EMAIL, response.getEmail());
         assertEquals(PASSWORD, response.getPassword());
+    }
+
+    @Test
+    void whenCreateThenReturnAnDataIntegrityViolationException() {
+        when(repository.findByEmail(any())).thenReturn(optionalUser);
+
+       try{
+           optionalUser.get().setId(2);
+           service.create(userDTO);
+       }catch (Exception ex){
+           assertEquals(DataIntegrityViolationException.class, ex.getClass());
+           assertEquals("E-mail já cadastrado no sistema.", ex.getMessage());
+       }
+
     }
 
     @Test
